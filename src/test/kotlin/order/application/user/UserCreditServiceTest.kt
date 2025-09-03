@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class UserPointServiceTest {
+class UserCreditServiceTest {
 
     private lateinit var userCreditRepository: UserCreditRepository
     private lateinit var userCreditService: UserCreditService
@@ -29,16 +29,16 @@ class UserPointServiceTest {
     fun `정상적으로 크레딧 충전`() {
         // given
         val userId = 1L
-        val points = 1000
+        val credits = 1000
         val user = mockk<UserCredit>()
 
-        every { userCreditRepository.chargeCredits(userId, points) } just Runs
+        every { userCreditRepository.chargeCredits(userId, credits) } just Runs
 
         // when
-        userCreditService.charge(userId, points)
+        userCreditService.charge(userId, credits)
 
         // then
-        verify { userCreditRepository.chargeCredits(userId, points) }
+        verify { userCreditRepository.chargeCredits(userId, credits) }
     }
 
     @Test

@@ -23,8 +23,11 @@ class DistributedLockAspect(
     private val logger = KotlinLogging.logger {}
     private val parser: ExpressionParser = SpelExpressionParser()
 
-    @Around("@annotation(distributedLock)")
-    fun around(joinPoint: ProceedingJoinPoint, distributedLock: DistributedLock): Any? {
+    @Around("@annotation(order.common.config.DistributedLock)")
+    fun around(joinPoint: ProceedingJoinPoint): Any? {
+        val method = (joinPoint.signature as MethodSignature).method
+        val distributedLock = method.getAnnotation(DistributedLock::class.java)
+
         val lockKey = generateLockKey(joinPoint, distributedLock)
         val lock = redissonClient.getLock(lockKey)
 

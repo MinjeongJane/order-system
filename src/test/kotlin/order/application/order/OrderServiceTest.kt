@@ -1,4 +1,4 @@
-package order.application
+package order.application.order
 
 import order.api.dto.OrderDetailsRequest
 import order.api.dto.OrderRequest
@@ -16,7 +16,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import order.application.order.OrderService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
