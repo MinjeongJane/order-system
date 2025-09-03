@@ -63,7 +63,7 @@ class OrderValidationTest {
     }
 
     @Test
-    fun `validate - 포인트 부족 예외`() {
+    fun `validate - 크레딧 부족 예외`() {
         // given
         val orderDetails = listOf(OrderDetailsRequest(menuId = 1, count = 2, menuPrice = 5000))
         val request = OrderRequest(userId = 1L, orderDetails = orderDetails, price = 3000)
