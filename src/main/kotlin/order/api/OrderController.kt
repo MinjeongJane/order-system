@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 @Validated
 @RestController
 @RequestMapping("/api/order")
-class CoffeeOrderController(
+class OrderController(
     private val menuService: MenuService,
 ) {
     // 메뉴 조회
