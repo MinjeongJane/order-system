@@ -17,10 +17,10 @@ class UserCreditRepositoryImpl(
 
     @Transactional
     override fun chargeCredits(id: Long, credits: Int) {
-        val userCredtis = userCreditJpaRepository.findByIdWithLock(id)
+        val userCredits = userCreditJpaRepository.findByIdWithLock(id)
             ?: throw NoSuchElementException("존재하지 않는 사용자입니다.")
 
-        userCredtis.credits += credits
+        userCredits.credits += credits
     }
 
     override fun save(userId: Long, credits: Int) {
