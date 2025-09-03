@@ -43,7 +43,6 @@ class RedissonConfig(
 /**
  * 분산 락 설정 Properties
  */
-@ConfigurationProperties(prefix = "app.distributed-lock")
 data class DistributedLockProperties(
     /**
      * 기본 대기 시간 (초)
