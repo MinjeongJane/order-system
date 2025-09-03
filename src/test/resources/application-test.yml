@@ -21,3 +21,6 @@ logging:
   level:
     org.springframework.kafka: DEBUG
     org.apache.kafka: DEBUG
+
+openai:
+  api-key: test-key
