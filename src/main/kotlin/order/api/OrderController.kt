@@ -1,10 +1,12 @@
 package order.api
 
 import jakarta.validation.Valid
+import order.api.dto.BestMenuResponse
 import order.api.dto.CreditChargeRequest
 import order.api.dto.MenuResponse
 import order.api.dto.OrderRequest
 import order.api.dto.Response
+import order.application.best.BestService
 import order.application.menu.MenuService
 import order.application.order.OrderService
 import order.application.user.UserCreditService
@@ -22,6 +24,7 @@ class OrderController(
     private val menuService: MenuService,
     private val creditService: UserCreditService,
     private val orderService: OrderService,
+    private val bestService: BestService,
 ) {
     // 메뉴 조회
     @GetMapping("/menu")
@@ -46,7 +49,21 @@ class OrderController(
         return Response.ok("주문이 완료되었습니다. 사용자 ID: ${result.userId}, 총 결제 가격: ${result.price}")
     }
 
+    // 인기메뉴 조회
+    @GetMapping("/best-menu")
+    fun findBestMenu(): Response<Any> {
+        val bestMenus = bestService.findBestMenu()
+        if (bestMenus.isEmpty()) return Response.ok(EMPTY_STATISTICS)
+
+        val menus = menuService.findMenuByIds(bestMenus.map { it.first })
+        val result = menus.zip(bestMenus) { menu, pair ->
+            BestMenuResponse(menuId = menu.id.toInt(), name = menu.name, orderCount = pair.second)
+        }
+        return Response.ok(result)
+    }
+
     companion object {
         private const val CHARGE_SUCCESS_MESSAGE = "크레딧 충전이 완료되었습니다."
+        private const val EMPTY_STATISTICS = "집계 된 메뉴가 없습니다."
     }
 }

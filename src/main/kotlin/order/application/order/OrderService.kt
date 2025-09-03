@@ -26,7 +26,7 @@ class OrderService(
      * 아이스크림 메뉴 주문
      * 1. 유효성 검사
      * 2. 메뉴주문 카운트 저장
-     * 3. 포인트 차감 및 주문
+     * 3. 크레딧 차감 및 주문
      * 4. event 발행
      */
     @DistributedLock(
