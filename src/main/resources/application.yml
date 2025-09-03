@@ -1,0 +1,64 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: order-system
+  cache:
+    type: caffeine
+
+  datasource:
+    url: jdbc:mysql://localhost:3307/order_system?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: order-system-pool
+      maximum-pool-size: 100 # mysql default connetion pool size : 151, 70~80% recommended
+      minimum-idle: 5
+      idle-timeout: 600000
+      connection-timeout: 30000
+      validation-timeout: 5000
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Seoul
+          batch_size : 20
+        order_inserts: true
+        format_sql: true
+    open-in-view: false
+
+  sql:
+    init:
+      mode: never
+
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+
+  kafka:
+    bootstrap-servers: localhost:9093
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoint:
+    prometheus:
+      enabled: true
+
+openai:
+  base-url: https://api.openai.com/v1
+  model: gpt-4o-mini
+  temperature: 0.2
+  api-key: ${OPENAI_API_KEY}
