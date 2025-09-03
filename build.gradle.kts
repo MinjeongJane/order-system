@@ -26,20 +26,19 @@ dependencies {
 
     implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
 
-    implementation("mysql:mysql-connector-java:8.0.33")
+    implementation("com.mysql:mysql-connector-j")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
     kapt("com.querydsl:querydsl-apt:5.1.0:jakarta")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
     kapt("jakarta.annotation:jakarta.annotation-api:2.1.1")
     kapt("jakarta.persistence:jakarta.persistence-api:3.0.0")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.redisson:redisson-spring-boot-starter:3.23.5")
 
     implementation("org.springframework.kafka:spring-kafka")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.2")
 
     // prometheus
@@ -73,6 +72,7 @@ sourceSets {
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(17)
 }

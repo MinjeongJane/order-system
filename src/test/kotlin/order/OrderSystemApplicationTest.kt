@@ -1,4 +1,8 @@
-@SpringBootTest
+import order.OrderSystemApplication
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
+
+@SpringBootTest(classes = [OrderSystemApplication::class])
 class OrderSystemApplicationTest {
 
     @Test
