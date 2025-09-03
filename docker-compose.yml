@@ -1,0 +1,139 @@
+services:
+  db:
+    build:
+      context: docker
+      dockerfile: Dockerfile
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: order_system
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./docker/db/mysql/data:/var/lib/mysql
+      - ./docker/db/mysql/config:/etc/mysql/conf.d
+      - ./src/main/resources/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - order-system_net
+
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.app
+#    depends_on:
+#      - db
+#      - redis
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/order_system
+#      SPRING_DATASOURCE_USERNAME: root
+#      SPRING_DATASOURCE_PASSWORD: root
+#      SPRING_REDIS_HOST: redis
+#      SPRING_REDIS_PORT: 6379
+#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#    ports:
+#      - "8081:8080"
+#    restart: on-failure
+#    networks:
+#      - order-system_net
+
+  redis:
+    image: redis:7
+    container_name: my-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./src/main/resources/redis-init.txt:/docker-entrypoint-initdb.d/redis-init.txt
+    command: [ "sh", "-c", "redis-server & sleep 3 && redis-cli < /docker-entrypoint-initdb.d/redis-init.txt && tail -f /dev/null" ]
+    networks:
+      - order-system_net
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.9.1
+    container_name: zookeeper
+    healthcheck:
+      test: [ "CMD", "echo", "ruok", "|", "nc", "localhost", "2181" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - order-system_net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.9.1
+    container_name: kafka
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    networks:
+      - order-system_net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - order-system_net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - order-system_net
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis-exporter
+    command: >
+      --redis.addr=redis://redis:6379
+      --web.listen-address=:9121
+    ports:
+      - "9121:9121"
+    networks:
+      - order-system_net
+
+  mysql-exporter:
+    image: prom/mysqld-exporter:v0.15.0
+    container_name: mysql-exporter
+    environment:
+      DATA_SOURCE_NAME: "exporter:strong_password@(mysql-db:3306)/order_system"
+      COLLECT_SLAVE_STATUS: "false"
+    volumes:
+      - ./src/main/resources/my.cnf:/root/.my.cnf
+    ports:
+      - "9104:9104"
+    networks:
+      - order-system_net
+
+networks:
+  order-system_net:
+    driver: bridge

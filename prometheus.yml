@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'order-system-app'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets:
+          - 'host.docker.internal:8080'
+  - job_name: 'redis'
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'redis-exporter:9121' ]
+  - job_name: 'mysql'
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'mysql-exporter:9104' ]
