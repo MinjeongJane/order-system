@@ -167,7 +167,7 @@ Grafana 대시보드 설정
 
 ```
 
-result : build/reports/gatling/coffee-order/index.html
+result : 
 
 * global :
   [Order_Gatling.pdf](src/main/resources/image/Order_Gatling.pdf)
