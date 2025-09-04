@@ -162,13 +162,6 @@ Grafana 대시보드 설정
 | `/api/order` (주문)                | Redis, JPA, Kafka, 트랜잭션    | 처리 시간, Kafka 전송 성공률, 오류율 | Redis TPS, Kafka 전송 실패율, DB 병목 |
 | `/api/order/best-menu` (인기메뉴 조회) | Redis 캐시 or DB Aggregation | 캐시 적중률, 쿼리 속도            | Redis TTL, DB GROUP BY 성능      |
 
-| Layer  | 체크 포인트                      |
-|--------|-----------------------------|
-| Redis  | CPU 사용률, TPS, 캐시 적중률        |
-| DB     | `slow query`, Lock 대기, 연결 수 |
-| Kafka  | 전송 지연, 큐 적체 여부              |
-| 애플리케이션 | GC 발생량, 힙 메모리, 스레드 수        |
-
 ```bash
 ./gradlew gatlingRun
 
