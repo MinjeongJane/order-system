@@ -55,9 +55,9 @@ class OrderController(
         val bestMenus = bestService.findBestMenu()
         if (bestMenus.isEmpty()) return Response.ok(EMPTY_STATISTICS)
 
-        val menus = menuService.findMenuByIds(bestMenus.map { it.first })
-        val result = menus.zip(bestMenus) { menu, pair ->
-            BestMenuResponse(menuId = menu.id.toInt(), name = menu.name, orderCount = pair.second)
+        val menus = menuService.findMenuByIds(bestMenus.map { it.menuId })
+        val result = menus.zip(bestMenus) { menu, count ->
+            BestMenuResponse(menuId = menu.id.toInt(), name = menu.name, orderCount = count.orderCount)
         }
         return Response.ok(result)
     }
