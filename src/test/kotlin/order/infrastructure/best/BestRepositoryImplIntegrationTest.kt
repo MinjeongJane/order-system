@@ -1,10 +1,10 @@
-package order.domain.best
+package order.infrastructure.best
 
 import TestJpaConfig
 import java.time.LocalDate
 import order.api.dto.OrderDetailsRequest
 import order.common.config.JacksonConfig
-import order.infrastructure.best.BestJpaRepository
+import order.domain.best.BestRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(JacksonConfig::class, TestJpaConfig::class)
-class BestRepositoryIntegrationTest @Autowired constructor(
+class BestRepositoryImplIntegrationTest @Autowired constructor(
     private val bestRepository: BestRepository,
     private val bestJpaRepository: BestJpaRepository,
     private val redissonClient: RedissonClient,
@@ -42,8 +42,8 @@ class BestRepositoryIntegrationTest @Autowired constructor(
             val bestMenus = bestRepository.findBestMenuInRedis()
 
             // then
-            assertTrue(bestMenus.any { it.first == MENU_ID_10 && it.second == MENU_COUNT_10 })
-            assertTrue(bestMenus.any { it.first == MENU_ID_20 && it.second == MENU_COUNT_20 })
+            assertTrue(bestMenus.any { it.menuId == MENU_ID_10 && it.orderCount == MENU_COUNT_10 })
+            assertTrue(bestMenus.any { it.menuId == MENU_ID_20 && it.orderCount == MENU_COUNT_20 })
         } finally {
             // redis 기록 원복
             val map = redissonClient.getMap<String, Long>("best_menu")

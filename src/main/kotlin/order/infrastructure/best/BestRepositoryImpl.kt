@@ -4,6 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 import java.time.Duration
 import java.time.LocalDate
 import order.api.dto.OrderDetailsRequest
+import order.domain.best.BestMenu
 import order.domain.best.BestRepository
 import order.domain.best.MenuOrderStatics
 import org.redisson.api.RedissonClient
@@ -15,17 +16,17 @@ class BestRepositoryImpl(
     private val bestJpaRepository: BestJpaRepository,
     private val queryFactory: JPAQueryFactory,
 ) : BestRepository {
-    override fun findBestMenuInRedis(): List<Pair<Int, Int>> {
+    override fun findBestMenuInRedis(): List<BestMenu> {
         val map = redissonClient.getMap<String, String>(BEST_MENU_KEY)
 
         return map.readAllMap()
             .entries
             .sortedByDescending { it.value.toLong() }
             .take(BEST_MENU_LIMIT)
-            .map { it.key.toInt() to it.value.toInt() }
+            .map { BestMenu(it.key.toInt(), it.value.toInt()) }
     }
 
-    override fun getOrCacheBestMenu(): List<Pair<Int, Int>> {
+    override fun getOrCacheBestMenu(): List<BestMenu> {
         val cached = findBestMenuInRedis()
         if (cached.isNotEmpty()) return cached
 
@@ -36,14 +37,14 @@ class BestRepositoryImpl(
         return dbResult
     }
 
-    private fun cacheBestMenuToRedis(menuIdCounts: List<Pair<Int, Int>>) {
+    private fun cacheBestMenuToRedis(menuIdCounts: List<BestMenu>) {
         val map = redissonClient.getMap<String, Long>(BEST_MENU_KEY)
-        val data = menuIdCounts.associate { it.first.toString() to it.second.toLong() }
+        val data = menuIdCounts.associate { it.menuId.toString() to it.orderCount.toLong() }
         map.putAll(data)
         map.expire(Duration.ofDays(REDIS_EXPIRED_DAYS))
     }
 
-    override fun findBestMenuInDB(): List<Pair<Int, Int>> {
+    override fun findBestMenuInDB(): List<BestMenu> {
         val qMenuOrder = QMenuOrderStatisticsEntity.menuOrderStatisticsEntity
         val endDate = LocalDate.now()
         val startDate = endDate.minusDays(7)
@@ -59,7 +60,7 @@ class BestRepositoryImpl(
             .mapNotNull { tuple ->
                 val menuId = tuple.get(qMenuOrder.menuId)
                 val count = tuple.get(qMenuOrder.count.sum())
-                if (menuId != null && count != null) menuId to count else null
+                if (menuId != null && count != null) BestMenu(menuId, count) else null
             }
     }
 
