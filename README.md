@@ -1,11 +1,16 @@
 # order-system
+
 ### 주문 시스템
-이 프로젝트는 아이스크림 주문시스템 구현을 간단하게 설계 및 구현한 공개용 프로젝트입니다. 
+
+이 프로젝트는 아이스크림 주문시스템 구현을 간단하게 설계 및 구현한 공개용 프로젝트입니다.
 코드스타일 및 아키텍처 설계등을 파악하실 수 있습니다.
 
 ---
+
 ## API 목록
+
 아이스크림 주문 시스템 구현
+
 1) 메뉴 조회 API
 2) credit 충전하기 API
 3) 주문하기 API
@@ -13,9 +18,11 @@
 5) Gpt에게 메뉴 추천받기
 
 ## SPEC
+
 Kotlin MySQL JPA Redis
 
 ## DB ERD
+
 ![erd.png](src/main/resources/image/erd.png)
 
 -----
@@ -25,6 +32,7 @@ Kotlin MySQL JPA Redis
 ## 프로젝트 개요
 
 ### 서비스 설명
+
 - **아이스크림 주문 시스템**은 사용자들이 아이스크림 메뉴를 확인하고, 크레딧을 충전하여 주문할 수 있도록 설계된 간단한 API 서비스입니다.
 - 크레딧을 사용해 결제하며, 최근 인기 메뉴를 확인할 수도 있습니다.
 - Gpt를 통해 대화형으로 메뉴 추천 기능도 제공합니다.
@@ -33,7 +41,7 @@ Kotlin MySQL JPA Redis
 
 ## 아키텍처
 
-###  설계 개요
+### 설계 개요
 
 - **Spring Boot** 기반으로 개발
 - **Redis**: 인기 메뉴 캐싱 및 동시성 제어
@@ -45,6 +53,7 @@ Kotlin MySQL JPA Redis
 - **Prometheus, Grafana**: 모니터링
 
 ### 계층 구조
+
 - **Controller Layer**: RESTful API 엔드포인트 제공
 - **Service Layer**: 비즈니스 로직
 - **Domain Layer**: 도메인 로직 집중
@@ -54,14 +63,14 @@ Kotlin MySQL JPA Redis
 
 ## 주요 기능
 
-### 📘 API 목록
+### API 목록
 
-| API      | Method | Endpoint               | 설명       |
-|----------|--------|------------------------|----------|
-| 메뉴 조회    | GET    | `/api/order/menu`      | 전체 메뉴 조회 |
+| API      | Method | Endpoint               | 설명          |
+|----------|--------|------------------------|-------------|
+| 메뉴 조회    | GET    | `/api/order/menu`      | 전체 메뉴 조회    |
 | 인기 메뉴 조회 | GET    | `/api/order/menu/best` | 최근 인기 메뉴 조회 |
 | 크레딧 충전   | POST   | `/api/order/charge`    | 사용자의 크레딧 충전 |
-| 주문 및 결제  | POST   | `/api/order`           | 메뉴 주문 및 결제 |
+| 주문 및 결제  | POST   | `/api/order`           | 메뉴 주문 및 결제  |
 
 ---
 
@@ -95,13 +104,13 @@ Kotlin MySQL JPA Redis
 
 ### 테스트 종류
 
-| 테스트 유형     | 도구       | 설명                     |
-|-----------------|------------|--------------------------|
-| 유닛 테스트     | JUnit, MockK | 개별 메서드 테스트       |
-| 통합 테스트     | Spring Boot Test | 서비스 계층 전체 테스트 |
-
+| 테스트 유형 | 도구               | 설명            |
+|--------|------------------|---------------|
+| 유닛 테스트 | JUnit, MockK     | 개별 메서드 테스트    |
+| 통합 테스트 | Spring Boot Test | 서비스 계층 전체 테스트 |
 
 ### 테스트 실행
+
    ```bash
    ./gradlew test
    ```
@@ -124,6 +133,7 @@ Kotlin MySQL JPA Redis
 ---
 
 ## 향후 개선 사항
+
 - 사용자 인증(JWT) 및 권한 관리
 - 크레딧 충전 내역 테이블 추가
 - 주문/결제 기능을 분리

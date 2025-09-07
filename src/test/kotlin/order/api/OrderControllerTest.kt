@@ -32,7 +32,6 @@ class OrderControllerTest {
 
     @Test
     fun `인기메뉴 없을 때 집계 없음 메시지 반환`() {
-        // bestService.findBestMenu()가 빈 리스트 반환하도록 mocking
         given(bestService.findBestMenu()).willReturn(emptyList())
 
         val result = mockMvc.get("/api/order/best-menu")

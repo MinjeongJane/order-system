@@ -4,11 +4,11 @@ import java.time.LocalDate
 import order.api.dto.OrderDetailsRequest
 
 interface BestRepository {
-    fun findBestMenuInRedis(): List<Pair<Int, Int>>
+    fun findBestMenuInRedis(): List<BestMenu>
 
-    fun getOrCacheBestMenu(): List<Pair<Int, Int>>
+    fun getOrCacheBestMenu(): List<BestMenu>
 
-    fun findBestMenuInDB(): List<Pair<Int, Int>>
+    fun findBestMenuInDB(): List<BestMenu>
 
     fun increaseOrderCountInRedis(orders: List<OrderDetailsRequest>): List<Long>
 
