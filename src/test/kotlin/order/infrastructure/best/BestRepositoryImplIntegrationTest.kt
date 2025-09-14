@@ -4,6 +4,7 @@ import TestJpaConfig
 import java.time.LocalDate
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.stream.IntStream
 import order.api.dto.OrderDetailsRequest
 import order.common.config.JacksonConfig
@@ -99,7 +100,7 @@ class BestRepositoryImplIntegrationTest @Autowired constructor(
                 latch.countDown()
             }
         }
-        latch.await()
+        latch.await(10, TimeUnit.SECONDS)
         executor.shutdown()
 
         val finalCount = map[menuId.toString()]?.toLong() ?: 0L
