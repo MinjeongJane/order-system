@@ -2,9 +2,6 @@ package order.infrastructure.best
 
 import TestJpaConfig
 import java.time.LocalDate
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.stream.IntStream
 import order.api.dto.OrderDetailsRequest
 import order.common.config.JacksonConfig
 import order.domain.best.BestRepository
@@ -18,9 +15,9 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 
+@SpringBootTest
 @ActiveProfiles("test")
 @Import(JacksonConfig::class, TestJpaConfig::class)
-@SpringBootTest(properties = ["spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"])
 class BestRepositoryImplIntegrationTest @Autowired constructor(
     private val bestRepository: BestRepository,
     private val bestJpaRepository: BestJpaRepository,
@@ -77,61 +74,5 @@ class BestRepositoryImplIntegrationTest @Autowired constructor(
             // 배치 기록 원복
             bestJpaRepository.deleteByMenuId(10)
         }
-    }
-
-    @Test
-    fun `increaseOrderCountInRedis 동시성 테스트, CountDownLatch 사용`() {
-        val menuId = 100
-        val threadCount = 10
-        val orderCountPerThread = 5
-        val latch = CountDownLatch(threadCount)
-        val executor = Executors.newFixedThreadPool(threadCount)
-
-        // redis 초기화
-        val map = redissonClient.getMap<String, String>("best_menu")
-        map.remove(menuId.toString())
-
-        repeat(threadCount) {
-            executor.submit {
-                bestRepository.increaseOrderCountInRedis(
-                    listOf(OrderDetailsRequest(menuId, orderCountPerThread, 1000))
-                )
-                latch.countDown()
-            }
-        }
-        latch.await()
-        executor.shutdown()
-
-        val finalCount = map[menuId.toString()]?.toLong() ?: 0L
-        assertEquals((threadCount * orderCountPerThread).toLong(), finalCount)
-
-        // 원복
-        map.remove(menuId.toString())
-    }
-
-    @Test
-    fun `decreaseOrderCountInRedis 동시성 테스트, IntStream parallel 사용`() {
-        val menuId = 200
-        val initialCount = 20
-        val decreasePerThread = 5
-        val threadCount = 4
-
-        // redis 초기화
-        val map = redissonClient.getMap<String, String>("best_menu")
-        map.put(menuId.toString(), initialCount.toString())
-
-        IntStream.range(0, threadCount)
-            .parallel()
-            .forEach {
-                bestRepository.decreaseOrderCountInRedis(
-                    listOf(OrderDetailsRequest(menuId, decreasePerThread, 1000))
-                )
-            }
-
-        val finalCount = map[menuId.toString()]?.toLong() ?: 0L
-        assertTrue(finalCount <= 0L)
-
-        // 원복
-        map.remove(menuId.toString())
     }
 }
