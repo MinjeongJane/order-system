@@ -94,10 +94,13 @@ class BestRepositoryImplIntegrationTest @Autowired constructor(
 
         repeat(threadCount) {
             executor.submit {
-                bestRepository.increaseOrderCountInRedis(
-                    listOf(OrderDetailsRequest(menuId, orderCountPerThread, 1000))
-                )
-                latch.countDown()
+                try {
+                    bestRepository.increaseOrderCountInRedis(
+                        listOf(OrderDetailsRequest(menuId, orderCountPerThread, 1000))
+                    )
+                } finally {
+                    latch.countDown()
+                }
             }
         }
         latch.await(10, TimeUnit.SECONDS)
