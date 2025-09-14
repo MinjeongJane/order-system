@@ -64,7 +64,7 @@ class BestRepositoryImpl(
             }
     }
 
-    //    @Async 데이터 정합성이 더 중요하다면, 비동기 처리
+    //    @Async 데이터 정합성이 더 중요하다면, 동기 처리
     override fun increaseOrderCountInRedis(orders: List<OrderDetailsRequest>): List<Long> =
         redissonClient.getMap<String, Long>(BEST_MENU_KEY).let { map ->
             map.expireIfNotSet(Duration.ofDays(REDIS_EXPIRED_DAYS))
