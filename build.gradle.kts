@@ -49,6 +49,10 @@ dependencies {
     implementation("io.gatling:gatling-core:3.10.5")
     implementation("io.gatling:gatling-http:3.10.5")
 
+    // resilience4j
+    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
+    implementation("io.github.resilience4j:resilience4j-ratelimiter:2.2.0")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-runner-junit5:5.6.1")

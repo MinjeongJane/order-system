@@ -1,14 +1,16 @@
 package order.infrastructure.best
 
 import com.querydsl.jpa.impl.JPAQueryFactory
-import java.time.Duration
-import java.time.LocalDate
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter
 import order.api.dto.OrderDetailsRequest
 import order.domain.best.BestMenu
 import order.domain.best.BestRepository
 import order.domain.best.MenuOrderStatics
 import org.redisson.api.RedissonClient
 import org.springframework.stereotype.Repository
+import java.time.Duration
+import java.time.LocalDate
 
 @Repository
 class BestRepositoryImpl(
@@ -16,6 +18,8 @@ class BestRepositoryImpl(
     private val bestJpaRepository: BestJpaRepository,
     private val queryFactory: JPAQueryFactory,
 ) : BestRepository {
+    private val logger = KotlinLogging.logger {}
+
     override fun findBestMenuInRedis(): List<BestMenu> {
         val map = redissonClient.getMap<String, String>(BEST_MENU_KEY)
 
@@ -26,6 +30,7 @@ class BestRepositoryImpl(
             .map { BestMenu(it.key.toInt(), it.value.toInt()) }
     }
 
+    @RateLimiter(name = "dbFallbackLimiter", fallbackMethod = "fallbackToEmptyBestMenu")
     override fun getOrCacheBestMenu(): List<BestMenu> {
         val cached = findBestMenuInRedis()
         if (cached.isNotEmpty()) return cached
@@ -35,6 +40,11 @@ class BestRepositoryImpl(
             cacheBestMenuToRedis(dbResult) // 집계 결과를 Redis에 저장
         }
         return dbResult
+    }
+
+    fun fallbackToEmptyBestMenu(e: Throwable): List<BestMenu> {
+        logger.error(e) { "Redis fallback : BestMenu 조회 실패" }
+        return findBestMenuInDB()
     }
 
     private fun cacheBestMenuToRedis(menuIdCounts: List<BestMenu>) {
