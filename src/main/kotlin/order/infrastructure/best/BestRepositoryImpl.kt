@@ -95,6 +95,11 @@ class BestRepositoryImpl(
         }
     }
 
+    fun fallbackToDB(orders: List<OrderDetailsRequest>, e: Throwable): List<Long> {
+        recordMenuStatisticsBatch(orders)
+        return orders.map { it.count.toLong() }
+    }
+
     override fun findMenuByDate(today: LocalDate, menuIds: List<Int>): List<MenuOrderStatics> =
         bestJpaRepository.findByDateAndMenuIdIn(today, menuIds)
             .map { it.toMenuOrderStatics() }
