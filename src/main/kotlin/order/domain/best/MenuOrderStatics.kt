@@ -8,6 +8,8 @@ data class MenuOrderStatics(
     val date: LocalDate,
     val menuId: Int,
     val count: Int,
-    val createdDate: LocalDateTime,
-    val updatedDate: LocalDateTime,
+    val createdBy: String,
+    val createdAt: LocalDateTime,
+    val modifiedBy: String,
+    val modifiedAt: LocalDateTime,
 )

@@ -28,7 +28,7 @@ spring:
       hibernate:
         jdbc:
           time_zone: Asia/Seoul
-          batch_size : 20
+          batch_size: 20
         order_inserts: true
         format_sql: true
     open-in-view: false

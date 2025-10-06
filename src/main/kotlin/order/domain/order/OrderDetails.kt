@@ -8,6 +8,8 @@ data class OrderDetails(
     val menuId: Int,
     val count: Int,
     val menuPrice: Int,
-    val createdDate: LocalDateTime,
-    val updatedDate: LocalDateTime,
+    val createdBy: String,
+    val createdAt: LocalDateTime,
+    val modifiedBy: String,
+    val modifiedAt: LocalDateTime,
 )
