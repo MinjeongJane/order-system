@@ -43,7 +43,9 @@ class OrderDetailsEntity(
             menuId = requireNotNull(this.menuId),
             count = requireNotNull(this.count),
             menuPrice = requireNotNull(this.menuPrice),
-            createdDate = requireNotNull(this.createdDate),
-            updatedDate = requireNotNull(this.updatedDate),
+            createdBy = requireNotNull(this.createdBy),
+            createdAt = requireNotNull(this.createdAt),
+            modifiedBy = requireNotNull(this.modifiedBy),
+            modifiedAt = requireNotNull(this.modifiedAt),
         )
 }
