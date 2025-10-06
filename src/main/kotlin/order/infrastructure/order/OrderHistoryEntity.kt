@@ -54,7 +54,9 @@ class OrderHistoryEntity(
             id = requireNotNull(this.id),
             userId = requireNotNull(this.userId),
             price = requireNotNull(this.price),
-            createdDate = requireNotNull(this.createdDate),
-            updatedDate = requireNotNull(this.updatedDate),
+            createdBy = requireNotNull(this.createdBy),
+            createdAt = requireNotNull(this.createdAt),
+            modifiedBy = requireNotNull(this.modifiedBy),
+            modifiedAt = requireNotNull(this.modifiedAt)
         )
 }

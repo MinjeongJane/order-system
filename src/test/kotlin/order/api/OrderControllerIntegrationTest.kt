@@ -1,6 +1,6 @@
 package order.api
 
-import TestJpaConfig
+import order.common.config.TestJpaConfig
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.nio.charset.StandardCharsets
@@ -37,11 +37,11 @@ class OrderControllerIntegrationTest @Autowired constructor(
     fun setUp() {
         // 테스트용 사용자 추가
         jdbcTemplate.update(
-            "INSERT IGNORE INTO USER_CREDIT (id, credits, created_date, updated_date, deleted) VALUES (?, '1000000', '2025-07-17 09:00:00', '2025-07-17 09:00:00', '0')",
+            "INSERT IGNORE INTO USER_CREDIT (id, credits, created_by, created_at, modified_by, modified_at, deleted) VALUES (?, '1000000', 'test', '2025-07-17 09:00:00', 'test', '2025-07-17 09:00:00', '0')",
             testUserId
         )
         jdbcTemplate.update(
-            "INSERT IGNORE INTO MENU (id, name, price, created_date, updated_date, deleted) VALUES (?, '팥빙수', 6000, '2025-07-17 09:00:00', '2025-07-17 09:00:00', '0')",
+            "INSERT IGNORE INTO MENU (id, name, price, created_by, created_at, modified_by, modified_at, deleted) VALUES (?, '팥빙수', 6000, 'test', '2025-07-17 09:00:00', 'test', '2025-07-17 09:00:00', '0')",
             testMenuId
         )
     }

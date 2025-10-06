@@ -1,6 +1,6 @@
 package order.infrastructure.best
 
-import TestJpaConfig
+import order.common.config.TestJpaConfig
 import java.time.LocalDate
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors

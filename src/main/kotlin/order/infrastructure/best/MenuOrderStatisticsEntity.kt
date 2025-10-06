@@ -37,7 +37,9 @@ class MenuOrderStatisticsEntity(
             date = requireNotNull(this.date),
             menuId = requireNotNull(this.menuId),
             count = requireNotNull(this.count),
-            createdDate = requireNotNull(this.createdDate),
-            updatedDate = requireNotNull(this.updatedDate)
+            createdBy = requireNotNull(this.createdBy),
+            createdAt = requireNotNull(this.createdAt),
+            modifiedBy = requireNotNull(this.modifiedBy),
+            modifiedAt = requireNotNull(this.modifiedAt),
         )
 }
