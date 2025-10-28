@@ -1,14 +1,12 @@
 package order.api.dto
 
 import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.NotNull
 
 data class MenuRequest(
     val id: Long?,
 
-    @field:NotNull
     val name: String?,
 
-    @field:Min(0)
+    @field:Min(value = 0, message = "가격설정은 0 이상이어야 합니다.")
     val price: Int?,
 )

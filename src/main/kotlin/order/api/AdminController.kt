@@ -1,8 +1,11 @@
 package order.api
 
+import jakarta.validation.Valid
 import order.api.dto.MenuRequest
 import order.api.dto.Response
 import order.application.admin.AdminService
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -11,7 +14,8 @@ import org.springframework.web.bind.annotation.RestController
 class AdminController(
     private val adminService: AdminService,
 ) {
-    fun saveMenu(request: List<MenuRequest>): Response<String> {
+    @PostMapping("/menu")
+    fun saveMenu(@RequestBody @Valid request: List<MenuRequest>): Response<String> {
         adminService.saveMenu(request)
         return Response.ok(MENU_SAVE_SUCCESS)
     }

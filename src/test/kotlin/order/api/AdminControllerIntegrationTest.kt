@@ -1,9 +1,8 @@
 package order.api
 
-import TestJpaConfig
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.nio.charset.StandardCharsets
+import order.common.config.TestJpaConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
+import java.nio.charset.StandardCharsets
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -42,7 +42,7 @@ class AdminControllerIntegrationTest @Autowired constructor(
             )
         )
 
-        val result = mockMvc.post("/api/admin") {
+        val result = mockMvc.post("/api/admin/menu") {
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(payload)
         }.andExpect { status { isOk() } }
@@ -66,10 +66,17 @@ class AdminControllerIntegrationTest @Autowired constructor(
             )
         )
 
-        mockMvc.post("/api/admin") {
+        val result = mockMvc.post("/api/admin/menu") {
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(payload)
-        }.andExpect { status { isBadRequest() } }
+        }.andExpect { status { isOk() } }
+            .andReturn()
+
+        val response = result.response.getContentAsString(StandardCharsets.UTF_8)
+        val json: JsonNode = objectMapper.readTree(response)
+
+        assert(json["code"].asInt() != 200)
+        assert(json["message"].asText().contains("BAD_REQUEST"))
     }
 }
 

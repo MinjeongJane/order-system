@@ -15,7 +15,7 @@ class MenuService(
         return menuRepository.findMenuAll()
     }
 
-    @Cacheable(cacheNames = ["menus"], key = "#menuIds", sync = true)
+    @Cacheable(cacheNames = ["menus"], key = "#menuIds", cacheResolver = "cacheResolver", sync = true)
     fun findMenuByIds(menuIds: List<Int>): List<Menu> {
         return menuRepository.findMenuByIds(menuIds)
     }
