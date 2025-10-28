@@ -1,6 +1,9 @@
 package order.common.config
 
+import com.github.benmanes.caffeine.cache.CacheLoader
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.LoadingCache
+import order.domain.menu.Menu
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import org.springframework.cache.CacheManager
@@ -17,7 +20,9 @@ import org.springframework.data.redis.serializer.RedisSerializationContext
 
 @Configuration
 @EnableCaching
-class CacheConfig {
+class CacheConfig(
+    private val cacheLoaderManager: CacheLoaderManager
+) {
     @Bean
     fun caffeineCacheBuilder(): Caffeine<Any, Any> =
         Caffeine.newBuilder()
@@ -29,8 +34,25 @@ class CacheConfig {
     @Bean
     fun cacheManager(caffeine: Caffeine<Any, Any>): CacheManager {
         val cacheManager = CaffeineCacheManager()
-        cacheManager.cacheNames = listOf(MENU_CACHE, MENUS_CACHE)
+        cacheManager.cacheNames = listOf(MENU_CACHE)
         cacheManager.setCaffeine(caffeine)
+        return cacheManager
+    }
+
+    @Bean
+    fun menusCacheManager(): CacheManager {
+        val cacheManager = CaffeineCacheManager()
+        cacheManager.setCacheLoader { key -> cacheLoaderManager.loadMenusCache(key as List<Int>) }
+
+        cacheManager.setCaffeine(
+            Caffeine.newBuilder()
+                .maximumSize(MAXIMUM_SIZE)
+                .expireAfterWrite(Duration.ofMinutes(MENUS_EXPIRE_AFTER_WRITE))
+                .refreshAfterWrite(Duration.ofMinutes(MENUS_REFRESH_AFTER_WRITE))
+        )
+
+        cacheManager.setCacheNames(listOf(MENU_CACHE))
+
         return cacheManager
     }
 
@@ -52,6 +74,8 @@ class CacheConfig {
     companion object {
         const val MAXIMUM_SIZE = 500L
         const val EXPIRE_AFTER_WRITE = 1L
+        const val MENUS_EXPIRE_AFTER_WRITE = 5L
+        const val MENUS_REFRESH_AFTER_WRITE = 5L
 
         const val MENU_CACHE = "menu"
         const val MENUS_CACHE = "menus"
