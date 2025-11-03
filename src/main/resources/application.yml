@@ -30,7 +30,7 @@ spring:
           time_zone: Asia/Seoul
           batch_size: 20
         order_inserts: true
-        order_updates:
+        order_updates: true
         format_sql: true
     open-in-view: false
 
