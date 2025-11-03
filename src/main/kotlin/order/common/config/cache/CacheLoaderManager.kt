@@ -1,4 +1,4 @@
-package order.common.config
+package order.common.config.cache
 
 import order.application.menu.MenuService
 import order.domain.menu.Menu
@@ -12,4 +12,3 @@ class CacheLoaderManager(
         return menuService.findMenuByIds(menuIds)
     }
 }
-/**/

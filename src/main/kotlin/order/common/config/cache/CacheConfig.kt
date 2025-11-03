@@ -1,4 +1,4 @@
-package order.common.config
+package order.common.config.cache
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import org.springframework.beans.factory.annotation.Qualifier

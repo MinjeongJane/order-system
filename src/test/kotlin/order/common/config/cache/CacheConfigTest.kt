@@ -1,4 +1,4 @@
-package order.common.config
+package order.common.config.cache
 
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
