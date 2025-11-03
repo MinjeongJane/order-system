@@ -100,7 +100,7 @@ class AdminControllerIntegrationTest @Autowired constructor(
         var found = false
         var actualPrice = -1
 
-        repeat(10) { // 최대 2초 (20 * 100ms)
+        repeat(10) { // 최대 1초 (10 * 100ms)
             val menus: List<Menu> = menuService.findMenuAll()
             val menu = menus.firstOrNull { it.id == testMenuId.toLong() }
             if (menu != null) {
