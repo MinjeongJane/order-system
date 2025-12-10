@@ -14,11 +14,13 @@ class MenuService(
     private val cacheInvalidation: CacheInvalidationManager,
 ) {
     //    @Async("menuTaskExecutor") @Async와 TaskExecutor를 사용하여 메뉴 조회 작업을 전용 스레드 풀에서 실행하도록 설정
+    @Transactional(readOnly = true)
     @Cacheable(cacheNames = ["menu"], key = "'ALL'", sync = true)
     fun findMenuAll(): List<Menu> {
         return menuRepository.findMenuAll()
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(cacheNames = ["menus"], key = "#menuIds", cacheResolver = "cacheResolver", sync = true)
     fun findMenuByIds(menuIds: List<Int>): List<Menu> {
         return menuRepository.findMenuByIds(menuIds)
