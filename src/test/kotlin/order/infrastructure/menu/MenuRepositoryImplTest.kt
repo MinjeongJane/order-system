@@ -23,10 +23,14 @@ class MenuRepositoryImplTest {
         every { menuReq.price } returns 1000
 
         val savedEntity = MenuEntity(id = 1L, name = "MenuA", price = 1000)
+        val map = mapOf(1L to savedEntity)
+
+        every { menuJpaRepository.findAllById(any()) } returns listOf(savedEntity)
         every { menuJpaRepository.saveAll(any<List<MenuEntity>>()) } returns listOf(savedEntity)
 
         assertDoesNotThrow { menuRepositoryImpl.saveMenu(listOf(menuReq)) }
 
+        verify(exactly = 1) { menuJpaRepository.findAllById(any()) }
         verify(exactly = 1) { menuJpaRepository.saveAll(any<List<MenuEntity>>()) }
         confirmVerified(menuJpaRepository)
     }
@@ -38,12 +42,16 @@ class MenuRepositoryImplTest {
         every { menuReq.name } returns "MenuA"
         every { menuReq.price } returns 1000
 
+        val existingEntity = MenuEntity(id = 1L, name = "MenuA", price = 1000)
+
+        every { menuJpaRepository.findAllById(any()) } returns listOf(existingEntity)
         every { menuJpaRepository.saveAll(any<List<MenuEntity>>()) } returns emptyList()
 
         assertThrows(DataAccessResourceFailureException::class.java) {
             menuRepositoryImpl.saveMenu(listOf(menuReq))
         }
 
+        verify(exactly = 1) { menuJpaRepository.findAllById(any()) }
         verify(exactly = 1) { menuJpaRepository.saveAll(any<List<MenuEntity>>()) }
         confirmVerified(menuJpaRepository)
     }

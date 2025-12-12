@@ -20,7 +20,7 @@ class MenuOrderStatisticsEntity(
 
     var date: LocalDate? = LocalDate.now(),
 
-    var menuId: Int?,
+    var menuId: Int,
 
     var count: Int = 0,
 
@@ -33,7 +33,7 @@ class MenuOrderStatisticsEntity(
         MenuOrderStatics(
             id = requireNotNull(this.id),
             date = requireNotNull(this.date),
-            menuId = requireNotNull(this.menuId),
+            menuId = this.menuId,
             count = requireNotNull(this.count),
             createdBy = requireNotNull(this.createdBy),
             createdAt = requireNotNull(this.createdAt),

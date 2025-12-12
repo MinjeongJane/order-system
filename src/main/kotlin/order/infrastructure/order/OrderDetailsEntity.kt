@@ -26,7 +26,7 @@ class OrderDetailsEntity(
     var orderHistory: OrderHistoryEntity,
 
     @Column(name = "menu_id", nullable = false)
-    var menuId: Int?,
+    var menuId: Int,
 
     @Column(nullable = false)
     var count: Int = 0,
@@ -38,7 +38,7 @@ class OrderDetailsEntity(
         OrderDetails(
             id = requireNotNull(this.id),
             orderId = requireNotNull(this.orderHistory.toOrderHistory()),
-            menuId = requireNotNull(this.menuId),
+            menuId = this.menuId,
             count = requireNotNull(this.count),
             menuPrice = requireNotNull(this.menuPrice),
             createdBy = requireNotNull(this.createdBy),

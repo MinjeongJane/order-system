@@ -17,14 +17,14 @@ class MenuEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
-    var name: String?,
+    var name: String,
 
-    var price: Int?
+    var price: Int
 ) : BaseEntity() {
     fun toMenu(): Menu =
         Menu(
             id = requireNotNull(id),
-            name = requireNotNull(name),
-            price = requireNotNull(price),
+            name = (name),
+            price = (price),
         )
 }
