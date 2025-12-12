@@ -11,8 +11,8 @@ import java.time.LocalDate
 import org.hibernate.annotations.SQLDelete
 
 @Entity
-@Table(name = "menu_order_statistics", schema = "order_system")
-@SQLDelete(sql = "UPDATE menu_order_statistics SET deleted = true WHERE id = ?")
+@Table(name = "`MENU_ORDER_STATISTICS`", schema = "order_system")
+@SQLDelete(sql = "UPDATE `MENU_ORDER_STATISTICS` SET deleted = true WHERE id = ?")
 class MenuOrderStatisticsEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,8 +14,8 @@ import order.infrastructure.common.BaseEntity
 import org.hibernate.annotations.SQLDelete
 
 @Entity
-@Table(name = "order_details", schema = "order_system")
-@SQLDelete(sql = "UPDATE order_details SET deleted = true WHERE id = ?")
+@Table(name = "`ORDER_DETAILS`", schema = "order_system")
+@SQLDelete(sql = "UPDATE `ORDER_DETAILS` SET deleted = true WHERE id = ?")
 class OrderDetailsEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

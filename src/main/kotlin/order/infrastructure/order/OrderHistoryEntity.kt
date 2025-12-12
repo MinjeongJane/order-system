@@ -15,8 +15,8 @@ import org.hibernate.annotations.BatchSize
 import org.hibernate.annotations.SQLDelete
 
 @Entity
-@Table(name = "order_history", schema = "order_system")
-@SQLDelete(sql = "UPDATE order_history SET deleted = true WHERE id = ?")
+@Table(name = "`ORDER_HISTORY`", schema = "order_system")
+@SQLDelete(sql = "UPDATE `ORDER_HISTORY` SET deleted = true WHERE id = ?")
 class OrderHistoryEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

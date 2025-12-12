@@ -10,8 +10,8 @@ import order.infrastructure.common.BaseEntity
 import org.hibernate.annotations.SQLDelete
 
 @Entity
-@Table(name = "menu", schema = "order_system")
-@SQLDelete(sql = "UPDATE menu SET deleted = true WHERE id = ?")
+@Table(name = "`MENU`", schema = "order_system")
+@SQLDelete(sql = "UPDATE `MENU` SET deleted = true WHERE id = ?")
 class MenuEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

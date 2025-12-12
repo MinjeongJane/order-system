@@ -24,3 +24,5 @@ logging:
 
 openai:
   api-key: test-key
+
+spring.jpa.hibernate.naming.physical-strategy: order.common.config.UpperCaseNamingStrategy

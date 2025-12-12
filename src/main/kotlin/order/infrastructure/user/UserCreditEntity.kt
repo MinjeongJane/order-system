@@ -8,8 +8,8 @@ import order.infrastructure.common.BaseEntity
 import org.hibernate.annotations.SQLDelete
 
 @Entity
-@Table(name = "user_credit", schema = "order_system")
-@SQLDelete(sql = "UPDATE user_credit SET deleted = true WHERE id = ?")
+@Table(name = "`USER_CREDIT`", schema = "order_system")
+@SQLDelete(sql = "UPDATE `USER_CREDIT` SET deleted = true WHERE id = ?")
 class UserCreditEntity(
     @Id
     var id: Long? = null,
