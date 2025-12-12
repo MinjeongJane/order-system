@@ -42,7 +42,13 @@ class CacheConfig(
     @Bean
     fun menusCacheManager(): CacheManager {
         val cacheManager = CaffeineCacheManager()
-        cacheManager.setCacheLoader { key -> cacheLoaderManager.loadMenusCache(key as List<Int>) }
+
+        cacheManager.setCacheLoader { key ->
+            when (key) {
+                is List<*> -> cacheLoaderManager.loadMenusCache(key.filterIsInstance<Int>())
+                else -> throw IllegalArgumentException("Expected List<Int> key for menus cache but got: ${key?.javaClass}")
+            }
+        }
 
         cacheManager.setCaffeine(
             Caffeine.newBuilder()

@@ -51,6 +51,7 @@ Kotlin MySQL JPA Redis
 - **Docker**: 컨테이너화
 - **Gatling**: 성능 테스트
 - **Prometheus, Grafana**: 모니터링
+- **Local Cache**: Cache Aside, Write Through, Cache Warm, PubSub 무효화 패턴 등 적용
 
 ### 계층 구조
 
@@ -65,12 +66,13 @@ Kotlin MySQL JPA Redis
 
 ### API 목록
 
-| API      | Method | Endpoint               | 설명          |
-|----------|--------|------------------------|-------------|
-| 메뉴 조회    | GET    | `/api/order/menu`      | 전체 메뉴 조회    |
-| 인기 메뉴 조회 | GET    | `/api/order/menu/best` | 최근 인기 메뉴 조회 |
-| 크레딧 충전   | POST   | `/api/order/charge`    | 사용자의 크레딧 충전 |
-| 주문 및 결제  | POST   | `/api/order`           | 메뉴 주문 및 결제  |
+| API      | Method | Endpoint               | 설명               |
+|----------|--------|------------------------|------------------|
+| 메뉴 조회    | GET    | `/api/order/menu`      | 전체 메뉴 조회         |
+| 인기 메뉴 조회 | GET    | `/api/order/menu/best` | 최근 인기 메뉴 조회      |
+| 크레딧 충전   | POST   | `/api/order/charge`    | 사용자의 크레딧 충전      |
+| 주문 및 결제  | POST   | `/api/order`           | 메뉴 주문 및 결제       |
+| 메뉴추천 요청  | POST   | `/api/ai/recommend`    | 대화형 AI에게 메뉴 추천요청 |
 
 ---
 
@@ -134,7 +136,6 @@ Kotlin MySQL JPA Redis
 
 ## 향후 개선 사항
 
-- 사용자 인증(JWT) 및 권한 관리
 - 크레딧 충전 내역 테이블 추가
 - 주문/결제 기능을 분리
 
@@ -167,7 +168,7 @@ Grafana 대시보드 설정
 
 ```
 
-result : 
+result :
 
 * global :
   [Order_Gatling.pdf](src/main/resources/image/Order_Gatling.pdf)

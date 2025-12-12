@@ -19,8 +19,29 @@ class MenuRepositoryImpl(
         menuJpaRepository.findByIdIn(menuIds.map { it.toLong() }).map { it.toMenu() }
 
     override fun saveMenu(menus: List<MenuRequest>) {
-        val entities = menus.map { MenuEntity(id = it.id, name = it.name, price = it.price) }
-        val result = menuJpaRepository.saveAll(entities)
+        val ids = menus.mapNotNull { it.id }.toSet()
+
+        val existingById: Map<Long, MenuEntity> =
+            if (ids.isEmpty()) emptyMap()
+            else menuJpaRepository.findAllById(ids).associateBy { requireNotNull(it.id) }
+
+        val entitiesToSave = menus.map { req ->
+            val id = req.id
+            if (id != null && existingById.containsKey(id)) {
+                val entity = existingById.getValue(id)
+                req.name?.let { entity.name = it }
+                req.price?.let { entity.price = it }
+                entity
+            } else {
+                MenuEntity(
+                    id = id,
+                    name = requireNotNull(req.name),
+                    price = requireNotNull(req.price),
+                )
+            }
+        }
+
+        val result = menuJpaRepository.saveAll(entitiesToSave)
         if (result.isEmpty()) throw DataAccessResourceFailureException("메뉴 저장에 실패했습니다.")
     }
 }

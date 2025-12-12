@@ -4,9 +4,22 @@ plugins {
     kotlin("jvm") version "2.1.10"
     kotlin("plugin.spring") version "2.1.10"
     kotlin("kapt") version "2.1.10"
+    kotlin("plugin.jpa") version "2.1.10"
 
     scala
     id("io.gatling.gradle") version "3.10.5"
+}
+
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.Embeddable")
+    annotation("jakarta.persistence.MappedSuperclass")
+}
+
+noArg {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.Embeddable")
+    annotation("jakarta.persistence.MappedSuperclass")
 }
 
 group = "order-system"

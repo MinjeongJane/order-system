@@ -3,7 +3,6 @@ package order.infrastructure.user
 import order.domain.user.UserCredit
 import order.domain.user.UserCreditRepository
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
 
 @Repository
 class UserCreditRepositoryImpl(
@@ -15,7 +14,6 @@ class UserCreditRepositoryImpl(
             .orElse(null)
     }
 
-    @Transactional
     override fun chargeCredits(id: Long, credits: Int) {
         val userCredits = userCreditJpaRepository.findByIdWithLock(id)
             ?: throw NoSuchElementException("존재하지 않는 사용자입니다.")
