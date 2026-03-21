@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 
+
 @ActiveProfiles("test")
 @Import(JacksonConfig::class, TestJpaConfig::class)
 @SpringBootTest(properties = ["spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"])

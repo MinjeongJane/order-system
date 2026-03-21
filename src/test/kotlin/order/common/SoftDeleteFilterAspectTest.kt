@@ -15,6 +15,7 @@ class SoftDeleteFilterAspectTest {
         val entityManager = mockk<EntityManager>()
         val session = mockk<Session>(relaxed = true)
         every { entityManager.unwrap(Session::class.java) } returns session
+        every { session.getEnabledFilter("deletedFilter") } returns null
 
         val aspect = SoftDeleteFilterAspect(entityManager)
         aspect.enableDeletedFilter()
