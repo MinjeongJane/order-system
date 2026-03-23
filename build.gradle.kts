@@ -5,6 +5,7 @@ plugins {
     kotlin("plugin.spring") version "2.1.10"
     kotlin("kapt") version "2.1.10"
     kotlin("plugin.jpa") version "2.1.10"
+    jacoco
 
     scala
     id("io.gatling.gradle") version "3.10.5"
@@ -67,6 +68,11 @@ dependencies {
     implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
     implementation("io.github.resilience4j:resilience4j-ratelimiter:2.2.0")
 
+    // JWT
+    implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-runner-junit5:5.6.1")
@@ -105,4 +111,59 @@ tasks.register("composeUp") {
 
 tasks.named("test") {
     dependsOn("composeUp")
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    classDirectories.setFrom(files(classDirectories.files.map {
+        fileTree(it) {
+            exclude(
+                "**/Q*.class",
+                "**/*ApplicationKt.class",
+                "**/*Application.class",
+                // JPA Entities (infrastructure layer, tested via integration tests)
+                "**/infrastructure/**/*Entity.class",
+                "**/infrastructure/common/BaseEntity.class",
+                // JPA Repositories (interfaces)
+                "**/*JpaRepository.class",
+                // Pure config classes with no business logic
+                "**/config/AsyncConfig.class",
+                "**/config/AuditorAwareConfig.class",
+                "**/config/JpaConfig.class",
+                "**/config/KafkaProducerConfig.class",
+                "**/config/KafkaTopicConfig.class",
+                "**/config/OpenAiFeignConfig.class",
+                "**/config/QueryDslConfig.class",
+                "**/config/RedissonConfig.class",
+                "**/config/SecurityConfig.class",
+                "**/config/JacksonConfig.class",
+                "**/config/Resilience4jConfig.class",
+                // DTO classes
+                "**/dto/**",
+                "**/event/**",
+                // Domain interfaces (no implementation)
+                "**/domain/**/*Repository.class",
+                // Feign client interface
+                "**/feign/**"
+            )
+        }
+    }))
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.50".toBigDecimal()
+            }
+        }
+    }
 }
