@@ -101,6 +101,36 @@ class OrderControllerIntegrationTest @Autowired constructor(
     }
 
     @Test
+    fun `크레딧 잔액 조회시 userId와 잔액 반환`() {
+        val result = mockMvc.get("/api/order/credit/$testUserId")
+            .andExpect { status { isOk() } }
+            .andReturn()
+
+        val response = result.response.getContentAsString(StandardCharsets.UTF_8)
+        val json: JsonNode = objectMapper.readTree(response)
+
+        assert(json["code"].asInt() == 200)
+        assert(json["message"].asText() == "ok")
+        assert(json["value"]["userId"].asLong() == testUserId)
+        assert(json["value"]["credits"].asInt() >= 0)
+    }
+
+    @Test
+    fun `존재하지 않는 사용자 크레딧 조회시 404 코드 반환`() {
+        val nonExistentUserId = 0L
+
+        val result = mockMvc.get("/api/order/credit/$nonExistentUserId")
+            .andExpect { status { isOk() } }
+            .andReturn()
+
+        val response = result.response.getContentAsString(StandardCharsets.UTF_8)
+        val json: JsonNode = objectMapper.readTree(response)
+
+        assert(json["code"].asInt() == 404)
+        assert(json["message"].asText() == "존재하지 않는 사용자입니다.")
+    }
+
+    @Test
     fun `주문 성공시 주문 완료 메시지 반환`() {
         val orderDetails = listOf(OrderDetailsRequest(menuId = testMenuId, count = 1, menuPrice = 6000))
         val request = OrderRequest(userId = testUserId, orderDetails = orderDetails, price = 6000)

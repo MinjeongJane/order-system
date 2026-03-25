@@ -1,5 +1,6 @@
 package order.api
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
@@ -17,6 +18,7 @@ import order.application.user.UserCreditService
 import order.domain.best.BestMenu
 import order.domain.menu.Menu
 import order.domain.order.OrderHistory
+import order.domain.user.UserCredit
 import java.time.LocalDateTime
 
 class OrderControllerUnitTest : DescribeSpec({
@@ -145,6 +147,33 @@ class OrderControllerUnitTest : DescribeSpec({
 
                 response.code shouldBe 200
                 response.value shouldBe "집계 된 메뉴가 없습니다."
+            }
+        }
+    }
+
+    describe("getCredit") {
+        context("존재하는 사용자 ID가 주어졌을 때") {
+            it("CreditBalanceResponse를 Response로 감싸서 반환한다") {
+                val userCredit = UserCredit(id = 1L, credits = 5000)
+                every { creditService.getBalance(1L) } returns userCredit
+
+                val response = orderController.getCredit(1L)
+
+                response.code shouldBe 200
+                response.value!!.userId shouldBe 1L
+                response.value!!.credits shouldBe 5000
+                verify(exactly = 1) { creditService.getBalance(1L) }
+            }
+        }
+
+        context("존재하지 않는 사용자 ID가 주어졌을 때") {
+            it("NoSuchElementException을 그대로 전파한다") {
+                every { creditService.getBalance(999L) } throws NoSuchElementException("존재하지 않는 사용자입니다.")
+
+                val exception = shouldThrow<NoSuchElementException> {
+                    orderController.getCredit(999L)
+                }
+                exception.message shouldBe "존재하지 않는 사용자입니다."
             }
         }
     }
