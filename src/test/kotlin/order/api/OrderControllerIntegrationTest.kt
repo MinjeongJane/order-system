@@ -119,4 +119,41 @@ class OrderControllerIntegrationTest @Autowired constructor(
         assert(json["value"].asText().contains("사용자 ID"))
         assert(json["value"].asText().contains("총 결제 가격"))
     }
+
+    @Test
+    fun `주문 내역 조회시 주문 목록 반환`() {
+        val orderDetails = listOf(OrderDetailsRequest(menuId = testMenuId, count = 1, menuPrice = 6000))
+        val orderRequest = OrderRequest(userId = testUserId, orderDetails = orderDetails, price = 6000)
+        mockMvc.post("/api/order") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(orderRequest)
+        }.andExpect { status { isOk() } }
+
+        val result = mockMvc.get("/api/order/history/$testUserId")
+            .andExpect { status { isOk() } }
+            .andReturn()
+
+        val json: JsonNode = objectMapper.readTree(
+            result.response.getContentAsString(StandardCharsets.UTF_8)
+        )
+        assert(json["code"].asInt() == 200)
+        assert(json["value"].isArray)
+        assert(json["value"].size() > 0)
+        assert(json["value"][0]["orderId"] != null)
+        assert(json["value"][0]["details"].isArray)
+    }
+
+    @Test
+    fun `주문 내역이 없는 경우 빈 배열 반환`() {
+        val result = mockMvc.get("/api/order/history/88888")
+            .andExpect { status { isOk() } }
+            .andReturn()
+
+        val json: JsonNode = objectMapper.readTree(
+            result.response.getContentAsString(StandardCharsets.UTF_8)
+        )
+        assert(json["code"].asInt() == 200)
+        assert(json["value"].isArray)
+        assert(json["value"].size() == 0)
+    }
 }

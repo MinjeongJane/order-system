@@ -17,6 +17,7 @@ import order.application.user.UserCreditService
 import order.domain.best.BestMenu
 import order.domain.menu.Menu
 import order.domain.order.OrderHistory
+import order.domain.order.OrderHistoryResult
 import java.time.LocalDateTime
 
 class OrderControllerUnitTest : DescribeSpec({
@@ -105,6 +106,35 @@ class OrderControllerUnitTest : DescribeSpec({
                 response.code shouldBe 200
                 response.value!!.contains("1") shouldBe true
                 response.value!!.contains("6000") shouldBe true
+            }
+        }
+    }
+
+    describe("findOrderHistory") {
+        context("주문 내역이 있는 사용자 ID가 주어졌을 때") {
+            it("OrderHistoryResponse 목록을 반환한다") {
+                val now = LocalDateTime.now()
+                val orderHistory = OrderHistory(id = 1L, userId = 1L, price = 6000, createdBy = "test", createdAt = now, modifiedBy = "test", modifiedAt = now)
+                val results = listOf(OrderHistoryResult(history = orderHistory, details = emptyList()))
+                every { orderService.findOrdersByUserId(1L) } returns results
+
+                val response = orderController.findOrderHistory(1L)
+
+                response.code shouldBe 200
+                response.value!!.size shouldBe 1
+                response.value!![0].orderId shouldBe 1L
+                response.value!![0].price shouldBe 6000
+            }
+        }
+
+        context("주문 내역이 없을 때") {
+            it("빈 목록을 반환한다") {
+                every { orderService.findOrdersByUserId(any()) } returns emptyList()
+
+                val response = orderController.findOrderHistory(999L)
+
+                response.code shouldBe 200
+                response.value!!.isEmpty() shouldBe true
             }
         }
     }
