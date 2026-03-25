@@ -10,6 +10,8 @@ import order.api.dto.OrderRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -29,6 +31,7 @@ class OrderControllerIntegrationTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
     val jdbcTemplate: JdbcTemplate,
+    val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
 ) {
     private val testUserId = 99999L
     private val testMenuId = 99999
@@ -57,9 +60,9 @@ class OrderControllerIntegrationTest @Autowired constructor(
         )
         if (orderIds.isNotEmpty()) {
             // 해당 주문 id와 menu_id로 상세 내역 삭제
-            jdbcTemplate.update(
-                "DELETE FROM ORDER_DETAILS WHERE order_id IN (${orderIds.joinToString(",")}) AND menu_id = ?",
-                testMenuId
+            namedParameterJdbcTemplate.update(
+                "DELETE FROM ORDER_DETAILS WHERE order_id IN (:orderIds) AND menu_id = :menuId",
+                MapSqlParameterSource().addValue("orderIds", orderIds).addValue("menuId", testMenuId)
             )
         }
         jdbcTemplate.update("DELETE FROM ORDER_HISTORY WHERE user_id = ?", testUserId)
