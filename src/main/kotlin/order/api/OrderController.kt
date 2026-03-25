@@ -69,8 +69,8 @@ class OrderController(
                 orderId = result.history.id,
                 price = result.history.price,
                 createdAt = result.history.createdAt,
-                details = result.details.map { d ->
-                    OrderDetailResponse(menuId = d.menuId, count = d.count, menuPrice = d.menuPrice)
+                details = result.details.map { detail ->
+                    OrderDetailResponse(menuId = detail.menuId, count = detail.count, menuPrice = detail.menuPrice)
                 }
             )
         })
