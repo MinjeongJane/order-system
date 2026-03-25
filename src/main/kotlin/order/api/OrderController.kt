@@ -5,6 +5,8 @@ import order.api.dto.BestMenuResponse
 import order.api.dto.CreditBalanceResponse
 import order.api.dto.CreditChargeRequest
 import order.api.dto.MenuResponse
+import order.api.dto.OrderDetailResponse
+import order.api.dto.OrderHistoryResponse
 import order.api.dto.OrderRequest
 import order.api.dto.Response
 import order.application.best.BestService
@@ -56,6 +58,22 @@ class OrderController(
     fun getCredit(@PathVariable userId: Long): Response<CreditBalanceResponse> {
         val userCredit = creditService.getBalance(userId)
         return Response.ok(CreditBalanceResponse(userId = userCredit.id, credits = userCredit.credits))
+    }
+
+    // 주문 내역 조회
+    @GetMapping("/history/{userId}")
+    fun findOrderHistory(@PathVariable userId: Long): Response<List<OrderHistoryResponse>> {
+        val results = orderService.findOrdersByUserId(userId)
+        return Response.ok(results.map { result ->
+            OrderHistoryResponse(
+                orderId = result.history.id,
+                price = result.history.price,
+                createdAt = result.history.createdAt,
+                details = result.details.map { d ->
+                    OrderDetailResponse(menuId = d.menuId, count = d.count, menuPrice = d.menuPrice)
+                }
+            )
+        })
     }
 
     // 인기메뉴 조회
