@@ -9,6 +9,7 @@ import io.mockk.verify
 import order.api.dto.BestMenuResponse
 import order.api.dto.CreditChargeRequest
 import order.api.dto.OrderDetailsRequest
+import order.api.dto.OrderHistoryResponse
 import order.api.dto.OrderRequest
 import order.application.best.BestService
 import order.application.menu.MenuService
@@ -17,6 +18,8 @@ import order.application.user.UserCreditService
 import order.domain.best.BestMenu
 import order.domain.menu.Menu
 import order.domain.order.OrderHistory
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import java.time.LocalDateTime
 
 class OrderControllerUnitTest : DescribeSpec({
@@ -105,6 +108,44 @@ class OrderControllerUnitTest : DescribeSpec({
                 response.code shouldBe 200
                 response.value!!.contains("1") shouldBe true
                 response.value!!.contains("6000") shouldBe true
+            }
+        }
+    }
+
+    describe("findOrderHistory") {
+        context("주문 내역이 존재하는 사용자 조회 시") {
+            it("페이지네이션된 주문 내역을 반환한다") {
+                val userId = 1L
+                val now = LocalDateTime.now()
+                val pageable = PageRequest.of(0, 20)
+                val orders = listOf(
+                    OrderHistory(id = 1L, userId = userId, price = 3000, createdBy = "system", createdAt = now, modifiedBy = "system", modifiedAt = now),
+                    OrderHistory(id = 2L, userId = userId, price = 5000, createdBy = "system", createdAt = now, modifiedBy = "system", modifiedAt = now),
+                )
+                val page = PageImpl(orders, pageable, orders.size.toLong())
+                every { orderService.findOrdersByUserId(userId, pageable) } returns page
+
+                val response = orderController.findOrderHistory(userId, pageable)
+
+                response.code shouldBe 200
+                @Suppress("UNCHECKED_CAST")
+                val result = response.value as org.springframework.data.domain.Page<OrderHistoryResponse>
+                result.totalElements shouldBe 2
+                result.content[0].price shouldBe 3000
+                result.content[1].price shouldBe 5000
+            }
+        }
+
+        context("주문 내역이 없는 사용자 조회 시") {
+            it("빈 페이지를 반환한다") {
+                val userId = 99L
+                val pageable = PageRequest.of(0, 20)
+                every { orderService.findOrdersByUserId(userId, pageable) } returns PageImpl(emptyList(), pageable, 0)
+
+                val response = orderController.findOrderHistory(userId, pageable)
+
+                response.code shouldBe 200
+                response.value!!.isEmpty shouldBe true
             }
         }
     }

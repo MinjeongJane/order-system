@@ -1,56 +1,41 @@
 package order.application.user
 
-import order.domain.user.UserCredit
-import order.domain.user.UserCreditRepository
-import io.mockk.MockKAnnotations
-import io.mockk.Runs
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import order.domain.user.UserCreditRepository
 
-class UserCreditServiceTest {
+class UserCreditServiceTest : DescribeSpec({
 
-    private lateinit var userCreditRepository: UserCreditRepository
-    private lateinit var userCreditService: UserCreditService
+    val userCreditRepository = mockk<UserCreditRepository>()
+    val userCreditService = UserCreditService(userCreditRepository)
 
-    @BeforeEach
-    fun setUp() {
-        MockKAnnotations.init(this)
-        userCreditRepository = mockk(relaxed = true)
-        userCreditService = UserCreditService(userCreditRepository)
-    }
+    describe("charge") {
+        context("유효한 사용자에게 크레딧 충전 요청 시") {
+            it("크레딧 충전이 정상적으로 처리된다") {
+                val userId = 1L
+                val credits = 1000
+                every { userCreditRepository.chargeCredits(userId, credits) } returns Unit
 
-    @Test
-    fun `정상적으로 크레딧 충전`() {
-        // given
-        val userId = 1L
-        val credits = 1000
-        val user = mockk<UserCredit>()
+                userCreditService.charge(userId, credits)
 
-        every { userCreditRepository.chargeCredits(userId, credits) } just Runs
-
-        // when
-        userCreditService.charge(userId, credits)
-
-        // then
-        verify { userCreditRepository.chargeCredits(userId, credits) }
-    }
-
-    @Test
-    fun `존재하지 않는 사용자 예외`() {
-        // given
-        val userId = 2L
-        every { userCreditRepository.chargeCredits(userId, any()) } throws NoSuchElementException("존재하지 않는 사용자입니다.")
-
-        // when & then
-        val exception = assertThrows<NoSuchElementException> {
-            userCreditService.charge(userId, 100)
+                verify(exactly = 1) { userCreditRepository.chargeCredits(userId, credits) }
+            }
         }
-        assertEquals("존재하지 않는 사용자입니다.", exception.message)
+
+        context("존재하지 않는 사용자에게 크레딧 충전 요청 시") {
+            it("NoSuchElementException 이 발생한다") {
+                val userId = 2L
+                every { userCreditRepository.chargeCredits(userId, any()) } throws NoSuchElementException("존재하지 않는 사용자입니다.")
+
+                val exception = shouldThrow<NoSuchElementException> {
+                    userCreditService.charge(userId, 100)
+                }
+                exception.message shouldBe "존재하지 않는 사용자입니다."
+            }
+        }
     }
-}
+})

@@ -9,6 +9,8 @@ import order.domain.order.OrderValidation
 import order.domain.user.UserCreditRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -68,6 +70,11 @@ class OrderService(
                 }
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    fun findOrdersByUserId(userId: Long, pageable: Pageable): Page<OrderHistory> {
+        return orderRepository.findOrdersByUserId(userId, pageable)
     }
 
     @Transactional

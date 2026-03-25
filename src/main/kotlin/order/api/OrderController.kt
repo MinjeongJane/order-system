@@ -4,14 +4,19 @@ import jakarta.validation.Valid
 import order.api.dto.BestMenuResponse
 import order.api.dto.CreditChargeRequest
 import order.api.dto.MenuResponse
+import order.api.dto.OrderHistoryResponse
 import order.api.dto.OrderRequest
 import order.api.dto.Response
 import order.application.best.BestService
 import order.application.menu.MenuService
 import order.application.order.OrderService
 import order.application.user.UserCreditService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -47,6 +52,16 @@ class OrderController(
     fun order(@RequestBody @Valid request: OrderRequest): Response<String> {
         val result = orderService.order(request)
         return Response.ok("주문이 완료되었습니다. 사용자 ID: ${result.userId}, 총 결제 가격: ${result.price}")
+    }
+
+    // 주문 내역 조회 (페이지네이션)
+    @GetMapping("/history/{userId}")
+    fun findOrderHistory(
+        @PathVariable userId: Long,
+        @PageableDefault(size = 20) pageable: Pageable,
+    ): Response<Page<OrderHistoryResponse>> {
+        val results = orderService.findOrdersByUserId(userId, pageable)
+        return Response.ok(results.map { OrderHistoryResponse(it.id, it.userId, it.price, it.createdAt) })
     }
 
     // 인기메뉴 조회

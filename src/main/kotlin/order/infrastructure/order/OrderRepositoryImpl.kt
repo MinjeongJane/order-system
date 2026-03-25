@@ -6,6 +6,8 @@ import order.domain.event.OrderHistoryEvent
 import order.domain.order.OrderHistory
 import order.domain.order.OrderRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Repository
 
@@ -49,6 +51,11 @@ class OrderRepositoryImpl(
                     logger.error(ex) { "Kafka 전송 실패" }
                 }
             }
+    }
+
+    override fun findOrdersByUserId(userId: Long, pageable: Pageable): Page<OrderHistory> {
+        return orderJpaRepository.findByUserIdAndNotDeleted(userId, pageable)
+            .map { it.toOrderHistory() }
     }
 
     companion object {
