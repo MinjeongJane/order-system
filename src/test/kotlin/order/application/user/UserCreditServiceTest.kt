@@ -53,4 +53,32 @@ class UserCreditServiceTest {
         }
         assertEquals("존재하지 않는 사용자입니다.", exception.message)
     }
+
+    @Test
+    fun `정상적으로 크레딧 잔액 조회`() {
+        // given
+        val userId = 1L
+        val userCredit = UserCredit(id = userId, credits = 5000)
+        every { userCreditRepository.findById(userId) } returns userCredit
+
+        // when
+        val result = userCreditService.getBalance(userId)
+
+        // then
+        assertEquals(userId, result.id)
+        assertEquals(5000, result.credits)
+    }
+
+    @Test
+    fun `존재하지 않는 사용자 잔액 조회 예외`() {
+        // given
+        val userId = 999L
+        every { userCreditRepository.findById(userId) } returns null
+
+        // when & then
+        val exception = assertThrows<NoSuchElementException> {
+            userCreditService.getBalance(userId)
+        }
+        assertEquals("존재하지 않는 사용자입니다.", exception.message)
+    }
 }
