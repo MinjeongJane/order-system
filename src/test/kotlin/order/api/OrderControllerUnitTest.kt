@@ -1,5 +1,6 @@
 package order.api
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
@@ -17,6 +18,8 @@ import order.application.user.UserCreditService
 import order.domain.best.BestMenu
 import order.domain.menu.Menu
 import order.domain.order.OrderHistory
+import order.domain.user.UserCredit
+import order.domain.order.OrderHistoryResult
 import java.time.LocalDateTime
 
 class OrderControllerUnitTest : DescribeSpec({
@@ -109,6 +112,35 @@ class OrderControllerUnitTest : DescribeSpec({
         }
     }
 
+    describe("findOrderHistory") {
+        context("주문 내역이 있는 사용자 ID가 주어졌을 때") {
+            it("OrderHistoryResponse 목록을 반환한다") {
+                val now = LocalDateTime.now()
+                val orderHistory = OrderHistory(id = 1L, userId = 1L, price = 6000, createdBy = "test", createdAt = now, modifiedBy = "test", modifiedAt = now)
+                val results = listOf(OrderHistoryResult(history = orderHistory, details = emptyList()))
+                every { orderService.findOrdersByUserId(1L) } returns results
+
+                val response = orderController.findOrderHistory(1L)
+
+                response.code shouldBe 200
+                response.value!!.size shouldBe 1
+                response.value!![0].orderId shouldBe 1L
+                response.value!![0].price shouldBe 6000
+            }
+        }
+
+        context("주문 내역이 없을 때") {
+            it("빈 목록을 반환한다") {
+                every { orderService.findOrdersByUserId(any()) } returns emptyList()
+
+                val response = orderController.findOrderHistory(999L)
+
+                response.code shouldBe 200
+                response.value!!.isEmpty() shouldBe true
+            }
+        }
+    }
+
     describe("findBestMenu") {
         context("인기 메뉴가 존재할 때") {
             it("메뉴 이름과 주문 수를 포함한 응답을 반환한다") {
@@ -145,6 +177,33 @@ class OrderControllerUnitTest : DescribeSpec({
 
                 response.code shouldBe 200
                 response.value shouldBe "집계 된 메뉴가 없습니다."
+            }
+        }
+    }
+
+    describe("getCredit") {
+        context("존재하는 사용자 ID가 주어졌을 때") {
+            it("CreditBalanceResponse를 Response로 감싸서 반환한다") {
+                val userCredit = UserCredit(id = 1L, credits = 5000)
+                every { creditService.getBalance(1L) } returns userCredit
+
+                val response = orderController.getCredit(1L)
+
+                response.code shouldBe 200
+                response.value!!.userId shouldBe 1L
+                response.value!!.credits shouldBe 5000
+                verify(exactly = 1) { creditService.getBalance(1L) }
+            }
+        }
+
+        context("존재하지 않는 사용자 ID가 주어졌을 때") {
+            it("NoSuchElementException을 그대로 전파한다") {
+                every { creditService.getBalance(999L) } throws NoSuchElementException("존재하지 않는 사용자입니다.")
+
+                val exception = shouldThrow<NoSuchElementException> {
+                    orderController.getCredit(999L)
+                }
+                exception.message shouldBe "존재하지 않는 사용자입니다."
             }
         }
     }

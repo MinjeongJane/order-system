@@ -4,6 +4,7 @@ import order.api.dto.OrderRequest
 import order.common.config.DistributedLock
 import order.domain.best.BestRepository
 import order.domain.order.OrderHistory
+import order.domain.order.OrderHistoryResult
 import order.domain.order.OrderRepository
 import order.domain.order.OrderValidation
 import order.domain.user.UserCreditRepository
@@ -68,6 +69,11 @@ class OrderService(
                 }
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    fun findOrdersByUserId(userId: Long): List<OrderHistoryResult> {
+        return orderRepository.findByUserId(userId)
     }
 
     @Transactional

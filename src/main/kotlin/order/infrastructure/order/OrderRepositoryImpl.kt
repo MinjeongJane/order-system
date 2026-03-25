@@ -4,6 +4,7 @@ import order.api.dto.OrderRequest
 import order.domain.event.OrderDetailsEvent
 import order.domain.event.OrderHistoryEvent
 import order.domain.order.OrderHistory
+import order.domain.order.OrderHistoryResult
 import order.domain.order.OrderRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.kafka.core.KafkaTemplate
@@ -49,6 +50,15 @@ class OrderRepositoryImpl(
                     logger.error(ex) { "Kafka 전송 실패" }
                 }
             }
+    }
+
+    override fun findByUserId(userId: Long): List<OrderHistoryResult> {
+        return orderJpaRepository.findAllByUserIdWithDetails(userId).map { entity ->
+            OrderHistoryResult(
+                history = entity.toOrderHistory(),
+                details = entity.orderDetails.map { it.toOrderDetails() }
+            )
+        }
     }
 
     companion object {

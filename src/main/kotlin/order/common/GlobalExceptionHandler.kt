@@ -21,4 +21,10 @@ class GlobalExceptionHandler {
         logger.warn(ex) { ex.message ?: ErrorCode.INVALID_INPUT_VALUE.message }
         return Response.error(ErrorCode.INVALID_INPUT_VALUE, ex.message)
     }
+
+    @ExceptionHandler(NoSuchElementException::class)
+    fun handleNoSuchElementException(ex: NoSuchElementException): Response<Nothing> {
+        logger.warn(ex) { ex.message ?: ErrorCode.NOT_FOUND.message }
+        return Response.error(ErrorCode.NOT_FOUND, ex.message)
+    }
 }
