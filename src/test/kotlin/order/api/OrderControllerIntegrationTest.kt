@@ -10,6 +10,8 @@ import order.api.dto.OrderRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -29,6 +31,7 @@ class OrderControllerIntegrationTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
     val jdbcTemplate: JdbcTemplate,
+    val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
 ) {
     private val testUserId = 99999L
     private val testMenuId = 99999
@@ -57,9 +60,9 @@ class OrderControllerIntegrationTest @Autowired constructor(
         )
         if (orderIds.isNotEmpty()) {
             // 해당 주문 id와 menu_id로 상세 내역 삭제
-            jdbcTemplate.update(
-                "DELETE FROM ORDER_DETAILS WHERE order_id IN (${orderIds.joinToString(",")}) AND menu_id = ?",
-                testMenuId
+            namedParameterJdbcTemplate.update(
+                "DELETE FROM ORDER_DETAILS WHERE order_id IN (:orderIds) AND menu_id = :menuId",
+                MapSqlParameterSource().addValue("orderIds", orderIds).addValue("menuId", testMenuId)
             )
         }
         jdbcTemplate.update("DELETE FROM ORDER_HISTORY WHERE user_id = ?", testUserId)
@@ -101,6 +104,36 @@ class OrderControllerIntegrationTest @Autowired constructor(
     }
 
     @Test
+    fun `크레딧 잔액 조회시 userId와 잔액 반환`() {
+        val result = mockMvc.get("/api/order/credit/$testUserId")
+            .andExpect { status { isOk() } }
+            .andReturn()
+
+        val response = result.response.getContentAsString(StandardCharsets.UTF_8)
+        val json: JsonNode = objectMapper.readTree(response)
+
+        assert(json["code"].asInt() == 200)
+        assert(json["message"].asText() == "ok")
+        assert(json["value"]["userId"].asLong() == testUserId)
+        assert(json["value"]["credits"].asInt() >= 0)
+    }
+
+    @Test
+    fun `존재하지 않는 사용자 크레딧 조회시 404 코드 반환`() {
+        val nonExistentUserId = 0L
+
+        val result = mockMvc.get("/api/order/credit/$nonExistentUserId")
+            .andExpect { status { isOk() } }
+            .andReturn()
+
+        val response = result.response.getContentAsString(StandardCharsets.UTF_8)
+        val json: JsonNode = objectMapper.readTree(response)
+
+        assert(json["code"].asInt() == 404)
+        assert(json["message"].asText() == "존재하지 않는 사용자입니다.")
+    }
+
+    @Test
     fun `주문 성공시 주문 완료 메시지 반환`() {
         val orderDetails = listOf(OrderDetailsRequest(menuId = testMenuId, count = 1, menuPrice = 6000))
         val request = OrderRequest(userId = testUserId, orderDetails = orderDetails, price = 6000)
@@ -118,5 +151,42 @@ class OrderControllerIntegrationTest @Autowired constructor(
         assert(json["value"].asText().contains("주문이 완료되었습니다."))
         assert(json["value"].asText().contains("사용자 ID"))
         assert(json["value"].asText().contains("총 결제 가격"))
+    }
+
+    @Test
+    fun `주문 내역 조회시 주문 목록 반환`() {
+        val orderDetails = listOf(OrderDetailsRequest(menuId = testMenuId, count = 1, menuPrice = 6000))
+        val orderRequest = OrderRequest(userId = testUserId, orderDetails = orderDetails, price = 6000)
+        mockMvc.post("/api/order") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(orderRequest)
+        }.andExpect { status { isOk() } }
+
+        val result = mockMvc.get("/api/order/history/$testUserId")
+            .andExpect { status { isOk() } }
+            .andReturn()
+
+        val json: JsonNode = objectMapper.readTree(
+            result.response.getContentAsString(StandardCharsets.UTF_8)
+        )
+        assert(json["code"].asInt() == 200)
+        assert(json["value"].isArray)
+        assert(json["value"].size() > 0)
+        assert(json["value"][0]["orderId"] != null)
+        assert(json["value"][0]["details"].isArray)
+    }
+
+    @Test
+    fun `주문 내역이 없는 경우 빈 배열 반환`() {
+        val result = mockMvc.get("/api/order/history/88888")
+            .andExpect { status { isOk() } }
+            .andReturn()
+
+        val json: JsonNode = objectMapper.readTree(
+            result.response.getContentAsString(StandardCharsets.UTF_8)
+        )
+        assert(json["code"].asInt() == 200)
+        assert(json["value"].isArray)
+        assert(json["value"].size() == 0)
     }
 }
