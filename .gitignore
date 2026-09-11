@@ -51,3 +51,5 @@ Thumbs.db
 
 # Docker related files
 docker/db/mysql/data/
+docker/db/neo4j/
+

@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8084
 
 spring:
   application:
@@ -46,6 +46,12 @@ spring:
   kafka:
     bootstrap-servers: localhost:9093
 
+neo4j:
+  uri: ${NEO4J_URI:bolt://localhost:7687}
+  username: ${NEO4J_USERNAME:neo4j}
+  password: ${NEO4J_PASSWORD:orderSystem123}
+  database: neo4j
+
 management:
   endpoints:
     web:
@@ -62,4 +68,4 @@ openai:
   base-url: https://api.openai.com/v1
   model: gpt-4o-mini
   temperature: 0.2
-  api-key: ${OPENAI_API_KEY}
+  api-key: 12345

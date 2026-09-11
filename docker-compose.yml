@@ -50,6 +50,28 @@ services:
     networks:
       - order-system_net
 
+  neo4j:
+    image: neo4j:5.26-community
+    container_name: neo4j
+    environment:
+      NEO4J_AUTH: neo4j/orderSystem123
+      NEO4J_server_memory_heap_initial__size: 512M
+      NEO4J_server_memory_heap_max__size: 1G
+      NEO4J_server_memory_pagecache_size: 512M
+    ports:
+      - "7474:7474"   # Neo4j Browser (HTTP)
+      - "7687:7687"   # Bolt (드라이버 접속용)
+    volumes:
+      - ./docker/db/neo4j/data:/data
+      - ./docker/db/neo4j/logs:/logs
+    healthcheck:
+      test: [ "CMD-SHELL", "cypher-shell -u neo4j -p orderSystem123 'RETURN 1' || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - order-system_net
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.9.1
     container_name: zookeeper
